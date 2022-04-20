@@ -4,20 +4,9 @@ import fs from 'fs'
 // moduleResolution: "node"
 import { createClient } from 'redis';
 
-(async () => {
-  const client = createClient();
-
-  client.on('error', (err) => console.log('Redis Client Error', err));
-
-  await client.connect();
-
-  await client.set('key', 'value');
-  const value = await client.get('key');
-})();
 
 // 高速缓存
 // (缓存大小)lru缓存 根据使用时间决定失效时间, 从而控制缓存体量
-
 interface ICache {
     set(key: string, value: string): void,
     get(key: string): any|Promise<any>,
@@ -69,9 +58,12 @@ class Cache implements ICache{
 
 const cache = new Cache()
 const cacheRedis = new CacheRedis()
+
 // 无状态服务 内部没有数据, 只是提供数据读取工具
 
-// 路由层
+// 路由层  
+// 1.分发流量
+// 2.负责对接http协议(以及相关规范) ftp tcp 等其他传输协议
 export function router(app: Express){
     app.get('/', (req, res) => {
         if(!cache.has('index.html')) {
